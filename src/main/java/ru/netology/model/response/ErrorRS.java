@@ -1,11 +1,11 @@
-package ru.netology.model;
+package ru.netology.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ErrorResponse {
+public class ErrorRS {
 
     private String message;
     private Integer id;
