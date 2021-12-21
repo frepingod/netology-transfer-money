@@ -6,15 +6,15 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>2.6.1</version>
+        <relativePath/>
     </parent>
 
     <groupId>ru.netology</groupId>
     <artifactId>transfer-money</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>transfer-money</name>
-    <description>transfer-money</description>
+    <name>netology-transfer-money</name>
+    <description>netology-transfer-money</description>
 
     <properties>
         <java.version>11</java.version>
