@@ -7,7 +7,7 @@ public interface TransferMoneyRepository {
 
     Card getCard(String cardNumber);
 
-    int getAndIncrementTransferOperationId();
+    int incrementAndGetTransferOperationId();
 
     ConfirmOperation getConfirmOperation(String operationId);
 }

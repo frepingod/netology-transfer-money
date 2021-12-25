@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TransferMoneyRepositoryImpl implements TransferMoneyRepository {
 
     private final Map<String, Card> cards = new ConcurrentHashMap<>();
-    private final AtomicInteger transferOperationId = new AtomicInteger(1);
+    private final AtomicInteger transferOperationId = new AtomicInteger();
 
     private final Map<String, ConfirmOperation> confirms = new ConcurrentHashMap<>();
 
@@ -22,11 +22,9 @@ public class TransferMoneyRepositoryImpl implements TransferMoneyRepository {
         final String cardNumber2 = "2222 2222 2222 2222";
         final String cardNumber3 = "3333 3333 3333 3333";
 
-        final Amount amount = new Amount(1000, "RUB");
-
-        cards.put(cardNumber1, new Card(cardNumber1, "08/26", "123", amount));
-        cards.put(cardNumber2, new Card(cardNumber2, "08/27", "124", amount));
-        cards.put(cardNumber3, new Card(cardNumber3, "08/28", "125", amount));
+        cards.put(cardNumber1, new Card(cardNumber1, "08/26", "123", new Amount(1000, "RUB")));
+        cards.put(cardNumber2, new Card(cardNumber2, "08/27", "124", new Amount(1000, "RUB")));
+        cards.put(cardNumber3, new Card(cardNumber3, "08/28", "125", new Amount(1000, "RUB")));
 
         //----------//----------//----------//----------//----------//----------//----------//----------//
 
@@ -45,8 +43,8 @@ public class TransferMoneyRepositoryImpl implements TransferMoneyRepository {
     }
 
     @Override
-    public int getAndIncrementTransferOperationId() {
-        return transferOperationId.getAndIncrement();
+    public int incrementAndGetTransferOperationId() {
+        return transferOperationId.incrementAndGet();
     }
 
     @Override
