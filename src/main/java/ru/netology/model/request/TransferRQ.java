@@ -13,8 +13,8 @@ import javax.validation.constraints.Size;
 public class TransferRQ {
 
     @NotBlank(message = "card from number must not be null")
-    @Size(min = 19, max = 19)
-    @Pattern(regexp = "[0-9]{4}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}")
+    @Size(min = 16, max = 16)
+    @Pattern(regexp = "(?<!\\d)\\d{16}(?!\\d)")
     private String cardFromNumber;
 
     @NotBlank(message = "card from valid till must not be null")
@@ -24,12 +24,12 @@ public class TransferRQ {
 
     @NotBlank(message = "card from cvv must not be null")
     @Size(min = 3, max = 3)
-    @Pattern(regexp = "[0-9]{3}")
+    @Pattern(regexp = "(?<!\\d)\\d{3}(?!\\d)")
     private String cardFromCVV;
 
     @NotBlank(message = "card to number must not be null")
-    @Size(min = 19, max = 19)
-    @Pattern(regexp = "[0-9]{4}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}")
+    @Size(min = 16, max = 16)
+    @Pattern(regexp = "(?<!\\d)\\d{16}(?!\\d)")
     private String cardToNumber;
 
     private Amount amount;

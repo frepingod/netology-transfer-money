@@ -9,5 +9,4 @@ class TransferMoneyApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

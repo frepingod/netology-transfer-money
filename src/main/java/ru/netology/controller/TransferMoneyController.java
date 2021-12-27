@@ -1,6 +1,7 @@
 package ru.netology.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import ru.netology.service.TransferMoneyService;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "${cross.origin.host.name}", maxAge = 3600)
 public class TransferMoneyController {
 
     private TransferMoneyService service;

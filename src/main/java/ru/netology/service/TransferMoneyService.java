@@ -1,22 +1,31 @@
 package ru.netology.service;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.netology.exception.InputDataException;
 import ru.netology.model.Card;
-import ru.netology.model.ConfirmOperation;
 import ru.netology.model.request.ConfirmRQ;
 import ru.netology.model.request.TransferRQ;
 import ru.netology.model.response.TransferAndConfirmRS;
 import ru.netology.repository.TransferMoneyRepository;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Service
 @Slf4j
-@AllArgsConstructor
 public class TransferMoneyService {
 
-    private TransferMoneyRepository repository;
+    private final TransferMoneyRepository repository;
+
+    private final Map<String, TransferRQ> transfers = new ConcurrentHashMap<>();
+    private final Map<String, String> codes = new ConcurrentHashMap<>();
+    private final AtomicInteger operationId = new AtomicInteger();
+
+    public TransferMoneyService(TransferMoneyRepository repository) {
+        this.repository = repository;
+    }
 
     public TransferAndConfirmRS postTransfer(TransferRQ transferRQ) {
         final Card cardFrom = repository.getCard(transferRQ.getCardFromNumber());
@@ -54,43 +63,47 @@ public class TransferMoneyService {
             throw new InputDataException("card from invalid data: valid till and cvv");
         }
 
+        if (cardFrom.getAmount().getValue() < transferRQ.getAmount().getValue()) {
+            log.error("card from invalid data: not enough money");
+            throw new InputDataException("card from invalid data: not enough money");
+        }
+
+        final String transferId = Integer.toString(operationId.incrementAndGet());
+        transfers.put(transferId, transferRQ);
+        codes.put(transferId, "0000");
+
+        return new TransferAndConfirmRS(transferId);
+    }
+
+    public TransferAndConfirmRS postConfirmOperation(ConfirmRQ confirmRQ) {
+        final String operationId = confirmRQ.getOperationId();
+
+        final TransferRQ transferRQ = transfers.remove(operationId);
+        if (transferRQ == null) {
+            log.error("confirm operation invalid data: operation not found");
+            throw new InputDataException("confirm operation invalid data: operation not found");
+        }
+
+        final String code = codes.remove(operationId);
+        if (!confirmRQ.getCode().equals(code) || code.isEmpty()) {
+            log.error("confirm operation invalid data: code");
+            throw new InputDataException("confirm operation invalid data: code");
+        }
+
+        final Card cardFrom = repository.getCard(transferRQ.getCardFromNumber());
+        final Card cardTo = repository.getCard(transferRQ.getCardToNumber());
+
         final int cardFromValue = cardFrom.getAmount().getValue();
         final int cardToValue = cardTo.getAmount().getValue();
         final int transferValue = transferRQ.getAmount().getValue();
         final int commission = (int) (transferValue * 0.01);
 
-        if (cardFromValue < transferValue) {
-            log.error("card from invalid data: not enough money");
-            throw new InputDataException("card from invalid data: not enough money");
-        }
-
         cardFrom.getAmount().setValue(cardFromValue - transferValue);
         cardTo.getAmount().setValue(cardToValue + transferValue - commission);
-        final int transferId = repository.incrementAndGetTransferOperationId();
 
-        log.info(String.format("Success transfer. Transfer operation id %d. Card from %s. Card to %s. Amount %d. Commission %d",
-                transferId, transferRQ.getCardFromNumber(), transferRQ.getCardToNumber(), transferValue, commission));
+        log.info(String.format("Success transfer. Transfer operation id %s. Card from %s. Card to %s. Amount %d. Commission %d",
+                operationId, transferRQ.getCardFromNumber(), transferRQ.getCardToNumber(), transferValue, commission));
 
-        return new TransferAndConfirmRS(Integer.toString(transferId));
-    }
-
-    public TransferAndConfirmRS postConfirmOperation(ConfirmRQ confirmRQ) {
-        final ConfirmOperation operation = repository.getConfirmOperation(confirmRQ.getOperationId());
-
-        if (operation == null) {
-            log.error("confirm operation not found");
-            throw new InputDataException("confirm operation not found");
-        }
-
-        if (!operation.getCode().equals(confirmRQ.getCode())) {
-            log.error("confirm operation invalid data: code");
-            throw new InputDataException("confirm operation invalid data: code");
-        }
-
-        final String confirmOperationId = operation.getOperationId();
-
-        log.info("Success confirmation. Confirm operation id " + confirmOperationId);
-
-        return new TransferAndConfirmRS(confirmOperationId);
+        return new TransferAndConfirmRS(operationId);
     }
 }

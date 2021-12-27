@@ -12,8 +12,8 @@ import javax.validation.constraints.Size;
 public class Card {
 
     @NotBlank(message = "number must not be null")
-    @Size(min = 19, max = 19)
-    @Pattern(regexp = "[0-9]{4}[ ][0-9]{4}[ ][0-9]{4}[ ][0-9]{4}")
+    @Size(min = 16, max = 16)
+    @Pattern(regexp = "(?<!\\d)\\d{16}(?!\\d)")
     private String number;
 
     @NotBlank(message = "valid till must not be null")
@@ -23,7 +23,7 @@ public class Card {
 
     @NotBlank(message = "cvv must not be null")
     @Size(min = 3, max = 3)
-    @Pattern(regexp = "[0-9]{3}")
+    @Pattern(regexp = "(?<!\\d)\\d{3}(?!\\d)")
     private String cvv;
 
     private Amount amount;
