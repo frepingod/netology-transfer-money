@@ -1,5 +1,6 @@
 package ru.netology.service;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.netology.exception.InputDataException;
@@ -9,23 +10,12 @@ import ru.netology.model.request.TransferRQ;
 import ru.netology.model.response.TransferAndConfirmRS;
 import ru.netology.repository.TransferMoneyRepository;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 @Service
+@AllArgsConstructor
 @Slf4j
 public class TransferMoneyService {
 
     private final TransferMoneyRepository repository;
-
-    private final Map<String, TransferRQ> transfers = new ConcurrentHashMap<>();
-    private final Map<String, String> codes = new ConcurrentHashMap<>();
-    private final AtomicInteger operationId = new AtomicInteger();
-
-    public TransferMoneyService(TransferMoneyRepository repository) {
-        this.repository = repository;
-    }
 
     public TransferAndConfirmRS postTransfer(TransferRQ transferRQ) {
         final Card cardFrom = repository.getCard(transferRQ.getCardFromNumber());
@@ -68,9 +58,9 @@ public class TransferMoneyService {
             throw new InputDataException("card from invalid data: not enough money");
         }
 
-        final String transferId = Integer.toString(operationId.incrementAndGet());
-        transfers.put(transferId, transferRQ);
-        codes.put(transferId, "0000");
+        final String transferId = Integer.toString(repository.incrementAndGetOperationId());
+        repository.putTransfers(transferId, transferRQ);
+        repository.putCodes(transferId, "0000");
 
         return new TransferAndConfirmRS(transferId);
     }
@@ -78,13 +68,13 @@ public class TransferMoneyService {
     public TransferAndConfirmRS postConfirmOperation(ConfirmRQ confirmRQ) {
         final String operationId = confirmRQ.getOperationId();
 
-        final TransferRQ transferRQ = transfers.remove(operationId);
+        final TransferRQ transferRQ = repository.removeTransfer(operationId);
         if (transferRQ == null) {
             log.error("confirm operation invalid data: operation not found");
             throw new InputDataException("confirm operation invalid data: operation not found");
         }
 
-        final String code = codes.remove(operationId);
+        final String code = repository.removeCode(operationId);
         if (!confirmRQ.getCode().equals(code) || code.isEmpty()) {
             log.error("confirm operation invalid data: code");
             throw new InputDataException("confirm operation invalid data: code");

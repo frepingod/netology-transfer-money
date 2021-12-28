@@ -1,40 +1,60 @@
 package ru.netology.repository;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.netology.model.Amount;
 import ru.netology.model.Card;
+import ru.netology.model.request.TransferRQ;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.netology.TestData.*;
 
 class TransferMoneyRepositoryImplTest {
 
-    private final TransferMoneyRepository repository = new TransferMoneyRepositoryImpl();
+    private TransferMoneyRepository repository;
 
     private final Map<String, Card> testCards = new ConcurrentHashMap<>();
 
-    private final String testCardNumber1 = "1111111111111111";
-    private final String testCardNumber2 = "2222222222222222";
-    private final String testCardNumber3 = "3333333333333333";
-
-    private final Card testCard1 = new Card(testCardNumber1, "08/26", "123", new Amount(1000_00, "RUR"));
-    private final Card testCard2 = new Card(testCardNumber2, "08/27", "124", new Amount(1000_00, "RUR"));
-    private final Card testCard3 = new Card(testCardNumber3, "08/28", "125", new Amount(1000_00, "RUR"));
-
     @BeforeEach
     void setUp() {
-        testCards.put(testCardNumber1, testCard1);
-        testCards.put(testCardNumber2, testCard2);
-        testCards.put(testCardNumber3, testCard3);
+        repository = new TransferMoneyRepositoryImpl();
+
+        testCards.put(CARD_NUMBER_1, CARD_1);
+        testCards.put(CARD_NUMBER_2, CARD_2);
+        testCards.put(CARD_NUMBER_3, CARD_3);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {testCardNumber1, testCardNumber2, testCardNumber3})
+    @ValueSource(strings = {CARD_NUMBER_1, CARD_NUMBER_2, CARD_NUMBER_3})
     void getCard(String cardNumber) {
         assertEquals(testCards.get(cardNumber), repository.getCard(cardNumber));
+    }
+
+    @Test
+    void incrementAndGetOperationId() {
+        int forTestOperationId = 1;
+        assertEquals(repository.incrementAndGetOperationId(), forTestOperationId);
+    }
+
+    @Test
+    public void putAndRemoveTransfers() {
+        TransferRQ beforePut = repository.removeTransfer(OPERATION_ID);
+        assertNull(beforePut);
+        repository.putTransfers(OPERATION_ID, TRANSFER_RQ_4_5);
+        TransferRQ afterPut = repository.removeTransfer(OPERATION_ID);
+        assertEquals(afterPut, TRANSFER_RQ_4_5);
+    }
+
+    @Test
+    public void putAndRemoveCodes() {
+        String beforePut = repository.removeCode(OPERATION_ID);
+        assertNull(beforePut);
+        repository.putCodes(OPERATION_ID, CODE);
+        String afterPut = repository.removeCode(OPERATION_ID);
+        assertEquals(afterPut, CODE);
     }
 }
