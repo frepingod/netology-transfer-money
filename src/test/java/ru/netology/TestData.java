@@ -31,7 +31,7 @@ public class TestData {
     public static final String OPERATION_ID = "1";
     public static final String CODE = "0000";
 
-    public static final TransferRQ TRANSFER_RQ_1_2 = new TransferRQ(CARD_NUMBER_1, CARD_VALID_TILL_1, CARD_CVV_1, CARD_NUMBER_2, new Amount(1000_00, "RUR"));
-    public static final TransferRQ TRANSFER_RQ_4_5 = new TransferRQ(CARD_NUMBER_4, CARD_VALID_TILL_4, CARD_CVV_4, CARD_NUMBER_5, new Amount(1000_00, "RUR"));
+    public static final TransferRQ TRANSFER_RQ_1_2 = new TransferRQ(CARD_NUMBER_1, CARD_VALID_TILL_1, CARD_CVV_1, CARD_NUMBER_2, new Amount(100_00, "RUR"));
+    public static final TransferRQ TRANSFER_RQ_4_5 = new TransferRQ(CARD_NUMBER_4, CARD_VALID_TILL_4, CARD_CVV_4, CARD_NUMBER_5, new Amount(100_00, "RUR"));
     public static final ConfirmRQ CONFIRM_RQ = new ConfirmRQ(OPERATION_ID, CODE);
 }

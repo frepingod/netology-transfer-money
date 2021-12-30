@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>ru.netology</groupId>
-    <artifactId>transfer-money</artifactId>
+    <artifactId>netology-transfer-money</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>netology-transfer-money</name>
     <description>netology-transfer-money</description>
@@ -53,6 +53,13 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.16.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
